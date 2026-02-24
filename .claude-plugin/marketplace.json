@@ -1,0 +1,8 @@
+{
+  "plugins": {
+    "notify": {
+      "path": "plugins/notify",
+      "description": "Push notifications when Claude Code finishes tasks or needs input"
+    }
+  }
+}
