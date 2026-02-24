@@ -6,5 +6,5 @@ node_modules/
 Thumbs.db
 
 # Plugin runtime
-logs/
-config.json
+plugins/*/logs/
+plugins/*/config.json

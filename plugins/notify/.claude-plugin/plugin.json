@@ -1,5 +1,5 @@
 {
-  "name": "claude-code-notify",
+  "name": "notify",
   "version": "1.0.0",
   "description": "Push notifications when Claude Code finishes tasks or needs input. Supports Bark (iOS) with extensible backend system.",
   "author": {

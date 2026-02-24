@@ -1,8 +1,13 @@
 {
-  "plugins": {
-    "notify": {
-      "path": "plugins/notify",
+  "name": "claude-code-tools",
+  "owner": {
+    "name": "Siyuan Feng"
+  },
+  "plugins": [
+    {
+      "name": "notify",
+      "source": "./plugins/notify",
       "description": "Push notifications when Claude Code finishes tasks or needs input"
     }
-  }
+  ]
 }
