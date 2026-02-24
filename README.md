@@ -12,7 +12,7 @@ A marketplace of plugins for [Claude Code](https://docs.anthropic.com/en/docs/cl
 
 ```bash
 # Add this marketplace
-/plugin marketplace add owner/claude-code-tools
+/plugin marketplace add ai-native-sys/claude-code-tools
 
 # Install a plugin
 /plugin install notify
