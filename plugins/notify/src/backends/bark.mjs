@@ -13,6 +13,7 @@ export class BarkBackend {
     const payload = {
       device_key: config.deviceKey,
       title: notification.title,
+      subtitle: notification.subtitle,
       body: notification.body,
       group: notification.group,
       level: notification.level,

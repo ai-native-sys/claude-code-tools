@@ -103,8 +103,9 @@ export function formatNotification(status, input) {
   const message = getMessage(status, input);
 
   return {
-    title: `${projectName}@${host}`,
-    body: `${config.emoji} ${config.title}: ${message}`,
+    title: `${config.emoji} ${config.title}`,
+    subtitle: `${projectName}@${host}`,
+    body: message,
     group: `claude-code.${projectName}`,
     level: config.level,
   };
