@@ -1,10 +1,9 @@
 import { readFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const PLUGIN_ROOT = join(__dirname, '..');
-const CONFIG_FILE = join(PLUGIN_ROOT, 'config.json');
+const CONFIG_DIR = join(homedir(), '.claude', 'plugins', 'claude-code-tools', 'notify');
+const CONFIG_FILE = join(CONFIG_DIR, 'config.json');
 
 const DEFAULTS = {
   backend: 'bark',

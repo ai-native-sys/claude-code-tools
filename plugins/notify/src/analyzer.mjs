@@ -89,7 +89,7 @@ export function analyzeHookInput(input) {
     if (toolName === 'AskUserQuestion') return { status: 'question', hookEvent };
   }
 
-  if (hookEvent === 'Notification') {
+  if (hookEvent === 'PermissionRequest') {
     return { status: 'permission', hookEvent };
   }
 

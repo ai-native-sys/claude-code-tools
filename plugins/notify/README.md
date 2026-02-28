@@ -9,10 +9,10 @@ Currently supports **Bark** (iOS push notifications), with an extensible backend
 This plugin hooks into 4 Claude Code events:
 
 | Event | Trigger | Notification |
-| --- | --- | --- |
+| ----- | ------- | ------------ |
 | `PreToolUse` (ExitPlanMode) | Plan ready for review | "Plan Ready" |
 | `PreToolUse` (AskUserQuestion) | Claude asks a question | "Needs Input" |
-| `Notification` (permission_prompt) | Claude needs permission | "Needs Input" |
+| `PermissionRequest` | Claude needs permission | "Needs Input" |
 | `Stop` | Claude finished responding | "Task Complete" / "Review Complete" / "API Error" / "Session Limit" |
 
 ## Prerequisites
@@ -34,7 +34,7 @@ This plugin hooks into 4 Claude Code events:
 
 Run the setup skill to configure the plugin interactively:
 
-```
+```text
 /claude-code-notify:setup
 ```
 
@@ -83,7 +83,7 @@ export NOTIFY_LOG_LEVEL="debug"
 ## Notification Statuses
 
 | Status | Title | Bark Level | When |
-| --- | --- | --- | --- |
+| ------ | ----- | ---------- | ---- |
 | `task_complete` | Task Complete | `active` | Claude finished and used write/edit tools |
 | `review_complete` | Review Complete | `active` | Claude finished with read-only tools |
 | `question` | Needs Input | `timeSensitive` | Claude is asking a question or needs permission |

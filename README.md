@@ -5,7 +5,7 @@ A marketplace of plugins for [Claude Code](https://docs.anthropic.com/en/docs/cl
 ## Available Plugins
 
 | Plugin | Description |
-| --- | --- |
+| ------ | ----------- |
 | [notify](plugins/notify/) | Push notifications when Claude Code finishes tasks or needs input. Supports Bark (iOS) with extensible backend system. |
 
 ## Installation
@@ -28,7 +28,7 @@ A marketplace of plugins for [Claude Code](https://docs.anthropic.com/en/docs/cl
 
 ### Plugin Structure
 
-```
+```text
 plugins/<plugin-name>/
 ├── .claude-plugin/
 │   └── plugin.json       # Plugin metadata (name, version, description, author)

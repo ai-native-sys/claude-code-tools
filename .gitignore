@@ -5,6 +5,6 @@ node_modules/
 .DS_Store
 Thumbs.db
 
-# Plugin runtime
+# Plugin runtime (legacy — config and logs now live in ~/.claude/plugins/)
 plugins/*/logs/
 plugins/*/config.json

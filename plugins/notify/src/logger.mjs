@@ -1,11 +1,9 @@
 import { appendFileSync, statSync, renameSync, mkdirSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const PLUGIN_ROOT = join(__dirname, '..');
-
-const LOG_DIR = join(PLUGIN_ROOT, 'logs');
+const DATA_DIR = join(homedir(), '.claude', 'plugins', 'claude-code-tools', 'notify');
+const LOG_DIR = join(DATA_DIR, 'logs');
 const LOG_FILE = join(LOG_DIR, 'notify.log');
 const ROTATED_LOG_FILE = join(LOG_DIR, 'notify.log.1');
 const MAX_LOG_SIZE = 512 * 1024; // 512 KB
