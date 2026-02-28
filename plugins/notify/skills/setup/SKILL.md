@@ -14,9 +14,10 @@ Read `~/.claude/plugins/claude-code-tools/notify/config.json` to see if there's 
 
 ## Step 2: Select backend
 
-Ask the user which notification backend they want to use:
+Ask the user which notification backend(s) they want to use (they can select multiple):
 
-- **Bark** (iOS push notifications) — currently the only supported backend
+- **Bark** (iOS push notifications)
+- **Telegram** (Telegram bot messages)
 
 Frame the question for future extensibility (Discord, Lark, Email may be added later).
 
@@ -29,9 +30,24 @@ Frame the question for future extensibility (Discord, Lark, Email may be added l
 3. Ask if they want to customize:
    - **Server URL** (default: `https://api.day.app`) — for self-hosted Bark servers
 
+### For Telegram
+
+1. Tell the user to create a bot via **@BotFather** on Telegram: <https://t.me/BotFather>
+   - Send `/newbot` to BotFather, follow the prompts, and copy the **bot token**.
+2. Ask for their **bot token**. This is required.
+3. Tell the user to get their **chat ID**:
+   - Send any message to their new bot in Telegram.
+   - Then visit `https://api.telegram.org/bot<BOT_TOKEN>/getUpdates` in a browser (replacing `<BOT_TOKEN>` with the actual token).
+   - Find the `chat.id` value in the JSON response.
+4. Ask for their **chat ID**. This is required.
+
 ## Step 4: Write config
 
 Write the configuration to `~/.claude/plugins/claude-code-tools/notify/config.json` (create the directory if it doesn't exist):
+
+The `backend` field accepts a single string or an array for multi-backend. Only include backend sections the user selected.
+
+Bark only:
 
 ```json
 {
@@ -41,6 +57,36 @@ Write the configuration to `~/.claude/plugins/claude-code-tools/notify/config.js
     "serverUrl": "https://api.day.app",
     "sound": "minuet.caf",
     "icon": "https://www.google.com/s2/favicons?domain=claude.ai&sz=128"
+  }
+}
+```
+
+Telegram only:
+
+```json
+{
+  "backend": "tg",
+  "tg": {
+    "botToken": "<user-provided-bot-token>",
+    "chatId": "<user-provided-chat-id>"
+  }
+}
+```
+
+Both (multi-backend):
+
+```json
+{
+  "backend": ["bark", "tg"],
+  "bark": {
+    "deviceKey": "<user-provided-key>",
+    "serverUrl": "https://api.day.app",
+    "sound": "minuet.caf",
+    "icon": "https://www.google.com/s2/favicons?domain=claude.ai&sz=128"
+  },
+  "tg": {
+    "botToken": "<user-provided-bot-token>",
+    "chatId": "<user-provided-chat-id>"
   }
 }
 ```
@@ -67,6 +113,5 @@ Ask the user if they received the notification on their device.
 
 - If successful: tell the user notifications are now active and will trigger on task completion, questions, permission requests, and plan reviews.
 - If failed: check the log file for errors. Common issues:
-  - Invalid device key
-  - Bark app not installed
-  - Self-hosted server unreachable (`curl <serverUrl>/ping` should return pong)
+  - **Bark**: Invalid device key, Bark app not installed, self-hosted server unreachable (`curl <serverUrl>/ping` should return pong)
+  - **Telegram**: Invalid bot token, incorrect chat ID, bot hasn't been messaged yet (must send a message to the bot before it can reply)

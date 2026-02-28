@@ -2,7 +2,7 @@ import { isDuplicate } from './dedup.mjs';
 import { loadConfig } from './config.mjs';
 import { analyzeHookInput } from './analyzer.mjs';
 import { formatNotification } from './formatter.mjs';
-import { getBackend } from './backends/index.mjs';
+import { getBackends } from './backends/index.mjs';
 import { debug, info, error as logError, configure } from './logger.mjs';
 
 function readStdin() {
@@ -41,12 +41,25 @@ async function main() {
 
   const { status } = analyzeHookInput(input);
   const notification = formatNotification(status, input);
-  const backend = getBackend(config.backend);
+  const backends = getBackends(config.backends);
 
   debug(`notification: title="${notification.title}", body="${notification.body}"`);
-  info(`sending notification: status=${status}, backend=${config.backend}`);
-  await backend.send({ ...notification, config: config[config.backend] });
-  info(`notification sent successfully (${Date.now() - startTime}ms)`);
+  info(`sending notification: status=${status}, backends=${config.backends.join(',')}`);
+
+  const results = await Promise.allSettled(
+    backends.map(({ name, instance }) =>
+      instance.send({ ...notification, config: config[name] })
+        .then(() => { debug(`${name}: sent OK`); })
+        .catch((err) => { logError(`${name}: ${err.message}`); throw err; })
+    )
+  );
+
+  const failed = results.filter(r => r.status === 'rejected').length;
+  if (failed) {
+    info(`notification sent with ${failed}/${results.length} backend(s) failed (${Date.now() - startTime}ms)`);
+  } else {
+    info(`notification sent successfully via ${results.length} backend(s) (${Date.now() - startTime}ms)`);
+  }
 }
 
 main().catch((err) => {
