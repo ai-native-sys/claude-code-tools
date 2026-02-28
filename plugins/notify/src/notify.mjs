@@ -17,8 +17,12 @@ function readStdin() {
 }
 
 async function main() {
+  const startTime = Date.now();
   const raw = await readStdin();
-  if (!raw) return;
+  if (!raw) {
+    debug('no stdin input received, exiting');
+    return;
+  }
 
   const input = JSON.parse(raw);
   const sessionId = input.session_id || '';
@@ -27,11 +31,11 @@ async function main() {
   const config = loadConfig();
   configure({ logLevel: config.logLevel });
 
+  info(`invoked: hookEvent=${hookEvent}, sessionId=${sessionId}`);
   debug(`raw input: ${raw}`);
-  debug(`sessionId: ${sessionId}, hookEvent: ${hookEvent}`);
 
   if (isDuplicate(sessionId, hookEvent)) {
-    debug(`duplicate suppressed: ${sessionId}/${hookEvent}`);
+    info(`duplicate suppressed: ${sessionId}/${hookEvent}`);
     return;
   }
 
@@ -39,9 +43,10 @@ async function main() {
   const notification = formatNotification(status, input);
   const backend = getBackend(config.backend);
 
+  debug(`notification: title="${notification.title}", body="${notification.body}"`);
   info(`sending notification: status=${status}, backend=${config.backend}`);
   await backend.send({ ...notification, config: config[config.backend] });
-  debug('notification sent successfully');
+  info(`notification sent successfully (${Date.now() - startTime}ms)`);
 }
 
 main().catch((err) => {

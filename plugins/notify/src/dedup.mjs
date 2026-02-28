@@ -1,6 +1,7 @@
 import { writeFileSync, statSync, unlinkSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
+import { debug } from './logger.mjs';
 
 const DEDUP_WINDOW_MS = 2000;
 
@@ -14,9 +15,11 @@ export function isDuplicate(sessionId, hookEvent) {
     const stat = statSync(lockFile);
     const age = Date.now() - stat.mtimeMs;
     if (age < DEDUP_WINDOW_MS) {
+      debug(`dedup: lock hit, age=${age}ms (<${DEDUP_WINDOW_MS}ms window)`);
       return true;
     }
     // Stale lock — remove it
+    debug(`dedup: stale lock, age=${age}ms, removing`);
     try { unlinkSync(lockFile); } catch { /* ignore */ }
   } catch {
     // Lock doesn't exist — not a duplicate
@@ -25,8 +28,10 @@ export function isDuplicate(sessionId, hookEvent) {
   // Create lock file atomically
   try {
     writeFileSync(lockFile, String(Date.now()), { flag: 'wx' });
+    debug(`dedup: lock created at ${lockFile}`);
   } catch {
     // If wx fails (file appeared between check and create), treat as duplicate
+    debug('dedup: lock race condition, treating as duplicate');
     return true;
   }
 

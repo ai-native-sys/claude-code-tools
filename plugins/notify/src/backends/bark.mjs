@@ -1,4 +1,4 @@
-import { warn, error } from '../logger.mjs';
+import { debug, warn, error } from '../logger.mjs';
 
 export class BarkBackend {
   async send(notification) {
@@ -9,6 +9,7 @@ export class BarkBackend {
     }
 
     const serverUrl = (config.serverUrl || 'https://api.day.app').replace(/\/+$/, '');
+    const url = `${serverUrl}/push`;
     const payload = {
       device_key: config.deviceKey,
       title: notification.title,
@@ -20,7 +21,8 @@ export class BarkBackend {
     if (config.sound) payload.sound = config.sound;
     if (config.icon) payload.icon = config.icon;
 
-    const response = await fetch(`${serverUrl}/push`, {
+    debug(`Bark: POST ${url}`);
+    const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -29,6 +31,8 @@ export class BarkBackend {
 
     if (!response.ok) {
       error(`Bark: HTTP ${response.status} ${response.statusText}`);
+    } else {
+      debug(`Bark: HTTP ${response.status} OK`);
     }
   }
 }

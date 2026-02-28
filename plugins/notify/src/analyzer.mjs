@@ -1,3 +1,5 @@
+import { debug } from './logger.mjs';
+
 const WRITE_TOOLS = new Set([
   'Write', 'Edit', 'Bash', 'NotebookEdit', 'MultiEdit',
 ]);
@@ -85,17 +87,27 @@ export function analyzeHookInput(input) {
   const toolName = input.tool_name || '';
 
   if (hookEvent === 'PreToolUse') {
-    if (toolName === 'ExitPlanMode') return { status: 'plan_ready', hookEvent };
-    if (toolName === 'AskUserQuestion') return { status: 'question', hookEvent };
+    if (toolName === 'ExitPlanMode') {
+      debug(`analyze: PreToolUse/ExitPlanMode → plan_ready`);
+      return { status: 'plan_ready', hookEvent };
+    }
+    if (toolName === 'AskUserQuestion') {
+      debug(`analyze: PreToolUse/AskUserQuestion → question`);
+      return { status: 'question', hookEvent };
+    }
   }
 
   if (hookEvent === 'PermissionRequest') {
+    debug(`analyze: PermissionRequest → permission`);
     return { status: 'permission', hookEvent };
   }
 
   if (hookEvent === 'Stop') {
-    return { status: analyzeStopEvent(input), hookEvent };
+    const status = analyzeStopEvent(input);
+    debug(`analyze: Stop → ${status}`);
+    return { status, hookEvent };
   }
 
+  debug(`analyze: unmatched hookEvent=${hookEvent} → task_complete`);
   return { status: 'task_complete', hookEvent };
 }
