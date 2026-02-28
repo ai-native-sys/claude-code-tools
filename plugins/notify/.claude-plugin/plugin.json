@@ -1,6 +1,6 @@
 {
   "name": "notify",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Push notifications when Claude Code finishes tasks or needs input. Supports Bark (iOS) with extensible backend system.",
   "author": {
     "name": "Siyuan Feng"

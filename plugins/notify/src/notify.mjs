@@ -1,4 +1,3 @@
-import { readFileSync } from 'node:fs';
 import { isDuplicate } from './dedup.mjs';
 import { loadConfig } from './config.mjs';
 import { analyzeHookInput } from './analyzer.mjs';
@@ -7,15 +6,18 @@ import { getBackend } from './backends/index.mjs';
 import { debug, info, error as logError, configure } from './logger.mjs';
 
 function readStdin() {
-  try {
-    return readFileSync('/dev/stdin', 'utf-8');
-  } catch {
-    return '';
-  }
+  return new Promise((resolve) => {
+    let data = '';
+    process.stdin.setEncoding('utf-8');
+    process.stdin.on('data', (chunk) => { data += chunk; });
+    process.stdin.on('end', () => resolve(data));
+    process.stdin.on('error', () => resolve(''));
+    // If stdin is already closed/ended, 'end' fires immediately
+  });
 }
 
 async function main() {
-  const raw = readStdin();
+  const raw = await readStdin();
   if (!raw) return;
 
   const input = JSON.parse(raw);
