@@ -5,8 +5,30 @@ import { debug } from './logger.mjs';
 
 const DEDUP_WINDOW_MS = 2000;
 
+// When a PreToolUse (e.g. AskUserQuestion) fires, the subsequent
+// PermissionRequest for the same tool is redundant — suppress it.
+const SUPPRESSED_BY = {
+  PermissionRequest: ['PreToolUse'],
+};
+
 export function isDuplicate(sessionId, hookEvent) {
   if (!sessionId || !hookEvent) return false;
+
+  // Check if a recent notification from a higher-priority event suppresses this one
+  const suppressors = SUPPRESSED_BY[hookEvent];
+  if (suppressors) {
+    for (const src of suppressors) {
+      const srcLock = join(tmpdir(), `claude-notify-${sessionId}-${src}.lock`);
+      try {
+        const stat = statSync(srcLock);
+        const age = Date.now() - stat.mtimeMs;
+        if (age < DEDUP_WINDOW_MS) {
+          debug(`dedup: ${hookEvent} suppressed by recent ${src} (age=${age}ms)`);
+          return true;
+        }
+      } catch { /* lock doesn't exist */ }
+    }
+  }
 
   const lockFile = join(tmpdir(), `claude-notify-${sessionId}-${hookEvent}.lock`);
 
