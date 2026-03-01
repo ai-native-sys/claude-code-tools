@@ -20,8 +20,9 @@ export class TelegramBackend {
       parse_mode: 'Markdown',
     };
 
+    const fetchFn = notification.fetchFn || fetch;
     debug(`Telegram: POST ${url.replace(config.botToken, '<redacted>')}`);
-    const response = await fetch(url, {
+    const response = await fetchFn(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),

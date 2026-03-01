@@ -23,8 +23,9 @@ export class BarkBackend {
     if (config.sound) payload.sound = config.sound;
     if (config.icon) payload.icon = config.icon;
 
+    const fetchFn = notification.fetchFn || fetch;
     debug(`Bark: POST ${url}`);
-    const response = await fetch(url, {
+    const response = await fetchFn(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),

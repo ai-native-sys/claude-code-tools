@@ -10,6 +10,7 @@ const CONFIG_FILE = join(CONFIG_DIR, 'config.json');
 const DEFAULTS = {
   backend: 'bark',
   logLevel: 'info',
+  proxy: '',
   bark: {
     serverUrl: 'https://api.day.app',
     deviceKey: '',
@@ -43,6 +44,7 @@ export function loadConfig() {
   const config = {
     backends,
     logLevel: fileConfig.logLevel || DEFAULTS.logLevel,
+    proxy: fileConfig.proxy || DEFAULTS.proxy,
     bark: {
       ...DEFAULTS.bark,
       ...fileConfig.bark,

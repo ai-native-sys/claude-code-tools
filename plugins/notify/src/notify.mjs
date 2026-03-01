@@ -1,5 +1,6 @@
 import { isDuplicate } from './dedup.mjs';
 import { loadConfig } from './config.mjs';
+import { createFetch } from './proxy.mjs';
 import { analyzeHookInput } from './analyzer.mjs';
 import { formatNotification } from './formatter.mjs';
 import { getBackends } from './backends/index.mjs';
@@ -31,6 +32,7 @@ async function main() {
 
   const config = loadConfig();
   configure({ logLevel: config.logLevel });
+  const fetchFn = createFetch(config.proxy);
 
   info(`invoked: hookEvent=${hookEvent}, sessionId=${sessionId}${toolName ? `, toolName=${toolName}` : ''}`);
   debug(`raw input: ${raw}`);
@@ -49,7 +51,7 @@ async function main() {
 
   const results = await Promise.allSettled(
     backends.map(({ name, instance }) =>
-      instance.send({ ...notification, config: config[name] })
+      instance.send({ ...notification, config: config[name], fetchFn })
         .then(() => { debug(`${name}: sent OK`); })
         .catch((err) => { logError(`${name}: ${err.message}`); throw err; })
     )

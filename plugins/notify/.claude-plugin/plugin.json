@@ -1,6 +1,6 @@
 {
   "name": "notify",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Push notifications when Claude Code finishes tasks or needs input. Supports Bark (iOS), Feishu (飞书), and Telegram, with multi-backend support.",
   "author": {
     "name": "Siyuan Feng"

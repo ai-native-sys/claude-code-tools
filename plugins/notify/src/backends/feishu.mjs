@@ -7,14 +7,14 @@ const MSG_URL = `${BASE_URL}/im/v1/messages`;
 // Cache token across invocations within the same process (valid for 2h)
 let tokenCache = { token: '', expiresAt: 0 };
 
-async function getTenantAccessToken(appId, appSecret) {
+async function getTenantAccessToken(appId, appSecret, fetchFn) {
   if (tokenCache.token && Date.now() < tokenCache.expiresAt) {
     debug('Feishu: using cached tenant_access_token');
     return tokenCache.token;
   }
 
   debug('Feishu: fetching tenant_access_token');
-  const res = await fetch(TOKEN_URL, {
+  const res = await fetchFn(TOKEN_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ app_id: appId, app_secret: appSecret }),
@@ -47,7 +47,8 @@ export class FeishuBackend {
       return;
     }
 
-    const token = await getTenantAccessToken(config.appId, config.appSecret);
+    const fetchFn = notification.fetchFn || fetch;
+    const token = await getTenantAccessToken(config.appId, config.appSecret, fetchFn);
 
     const headerTitle = notification.subtitle
       ? `${notification.title} · ${notification.subtitle}`
@@ -65,7 +66,7 @@ export class FeishuBackend {
 
     const url = `${MSG_URL}?receive_id_type=chat_id`;
     debug(`Feishu: POST ${MSG_URL} -> chat_id=${config.chatId}`);
-    const res = await fetch(url, {
+    const res = await fetchFn(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
