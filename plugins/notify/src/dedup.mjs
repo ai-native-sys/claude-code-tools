@@ -11,26 +11,30 @@ const SUPPRESSED_BY = {
   PermissionRequest: ['PreToolUse'],
 };
 
-export function isDuplicate(sessionId, hookEvent) {
+export function isDuplicate(sessionId, hookEvent, toolName) {
   if (!sessionId || !hookEvent) return false;
 
+  // Include tool name in the key so dedup is per-tool
+  const key = toolName ? `${hookEvent}-${toolName}` : hookEvent;
+
   // Check if a recent notification from a higher-priority event suppresses this one
+  // e.g. PreToolUse-AskUserQuestion suppresses PermissionRequest-AskUserQuestion
   const suppressors = SUPPRESSED_BY[hookEvent];
-  if (suppressors) {
+  if (suppressors && toolName) {
     for (const src of suppressors) {
-      const srcLock = join(tmpdir(), `claude-notify-${sessionId}-${src}.lock`);
+      const srcLock = join(tmpdir(), `claude-notify-${sessionId}-${src}-${toolName}.lock`);
       try {
         const stat = statSync(srcLock);
         const age = Date.now() - stat.mtimeMs;
         if (age < DEDUP_WINDOW_MS) {
-          debug(`dedup: ${hookEvent} suppressed by recent ${src} (age=${age}ms)`);
+          debug(`dedup: ${key} suppressed by recent ${src}-${toolName} (age=${age}ms)`);
           return true;
         }
       } catch { /* lock doesn't exist */ }
     }
   }
 
-  const lockFile = join(tmpdir(), `claude-notify-${sessionId}-${hookEvent}.lock`);
+  const lockFile = join(tmpdir(), `claude-notify-${sessionId}-${key}.lock`);
 
   // Check if lock exists and is recent
   try {

@@ -10,13 +10,14 @@ export class BarkBackend {
 
     const serverUrl = (config.serverUrl || 'https://api.day.app').replace(/\/+$/, '');
     const url = `${serverUrl}/push`;
+    const barkLevel = notification.level === 'action' ? 'timeSensitive' : 'active';
     const payload = {
       device_key: config.deviceKey,
       title: notification.title,
       subtitle: notification.subtitle,
       body: notification.body,
       group: notification.group,
-      level: notification.level,
+      level: barkLevel,
     };
 
     if (config.sound) payload.sound = config.sound;

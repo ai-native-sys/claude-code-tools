@@ -27,15 +27,16 @@ async function main() {
   const input = JSON.parse(raw);
   const sessionId = input.session_id || '';
   const hookEvent = input.hook_event_name || '';
+  const toolName = input.tool_name || '';
 
   const config = loadConfig();
   configure({ logLevel: config.logLevel });
 
-  info(`invoked: hookEvent=${hookEvent}, sessionId=${sessionId}`);
+  info(`invoked: hookEvent=${hookEvent}, sessionId=${sessionId}${toolName ? `, toolName=${toolName}` : ''}`);
   debug(`raw input: ${raw}`);
 
-  if (isDuplicate(sessionId, hookEvent)) {
-    info(`duplicate suppressed: ${sessionId}/${hookEvent}`);
+  if (isDuplicate(sessionId, hookEvent, toolName)) {
+    info(`duplicate suppressed: ${sessionId}/${hookEvent}${toolName ? `/${toolName}` : ''}`);
     return;
   }
 

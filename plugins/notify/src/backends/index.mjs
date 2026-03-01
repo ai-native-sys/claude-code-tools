@@ -1,9 +1,11 @@
 import { BarkBackend } from './bark.mjs';
+import { FeishuBackend } from './feishu.mjs';
 import { TelegramBackend } from './tg.mjs';
 import { warn } from '../logger.mjs';
 
 const backends = {
   bark: BarkBackend,
+  feishu: FeishuBackend,
   tg: TelegramBackend,
 };
 

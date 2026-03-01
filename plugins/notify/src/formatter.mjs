@@ -5,37 +5,37 @@ const STATUS_CONFIG = {
   task_complete: {
     emoji: '\u2705',
     title: 'Task Complete',
-    level: 'active',
+    level: 'success',
   },
   review_complete: {
     emoji: '\ud83d\udcda',
     title: 'Review Complete',
-    level: 'active',
+    level: 'success',
   },
   question: {
     emoji: '\u2753',
     title: 'Needs Input',
-    level: 'timeSensitive',
+    level: 'action',
   },
   permission: {
     emoji: '\ud83d\udd10',
     title: 'Needs Permission',
-    level: 'timeSensitive',
+    level: 'action',
   },
   plan_ready: {
     emoji: '\ud83d\udccb',
     title: 'Plan Ready',
-    level: 'timeSensitive',
+    level: 'action',
   },
   api_error: {
     emoji: '\u26a0\ufe0f',
     title: 'API Error',
-    level: 'active',
+    level: 'warning',
   },
   session_limit: {
     emoji: '\u26a0\ufe0f',
     title: 'Session Limit',
-    level: 'active',
+    level: 'warning',
   },
 };
 
@@ -64,33 +64,70 @@ function getLastAssistantMessage(input) {
 
 function truncate(text, maxLen = 200) {
   if (!text) return '';
-  const cleaned = text.replace(/\s+/g, ' ').trim();
+  const cleaned = text.replace(/[^\S\n]+/g, ' ').replace(/\n{2,}/g, '\n').trim();
   if (cleaned.length <= maxLen) return cleaned;
   return cleaned.slice(0, maxLen) + '...';
+}
+
+function formatPermissionMessage(input) {
+  const toolName = input.tool_name || '';
+  const toolInput = input.tool_input || {};
+  let detail = '';
+
+  if (toolName === 'Bash' || toolName === 'bash') {
+    detail = toolInput.command ? truncate(toolInput.command, 150) : '';
+  } else if (toolName === 'Write' || toolName === 'Edit' || toolName === 'Read') {
+    detail = toolInput.file_path || '';
+  } else if (toolName === 'Glob') {
+    detail = toolInput.pattern || '';
+  } else if (toolName === 'Grep') {
+    detail = toolInput.pattern || '';
+  }
+
+  const lines = [];
+  if (toolName) lines.push(`Tool: ${toolName}`);
+  if (detail) lines.push(detail);
+  if (!toolName && input.notification_message) {
+    lines.push(truncate(input.notification_message, 200));
+  }
+  return lines.join('\n') || 'Claude needs permission to proceed';
+}
+
+function formatQuestionMessage(input) {
+  const toolInput = input.tool_input || {};
+  const questions = toolInput.questions;
+  if (!Array.isArray(questions) || questions.length === 0) {
+    return truncate(getLastAssistantMessage(input)) || 'Claude needs your input';
+  }
+
+  const lines = [];
+  for (const q of questions) {
+    if (q.question) lines.push(q.question);
+    const opts = q.options || [];
+    for (const opt of opts) {
+      if (opt.label) lines.push(`  - ${opt.label}`);
+    }
+  }
+  return truncate(lines.join('\n'), 500);
+}
+
+function formatPlanMessage(input) {
+  const summary = truncate(getLastAssistantMessage(input), 300);
+  return summary || 'Plan is ready for your review';
 }
 
 function getMessage(status, input) {
   switch (status) {
     case 'plan_ready':
-      return 'Plan is ready for your review';
+      return formatPlanMessage(input);
     case 'session_limit':
       return 'Session limit reached';
     case 'api_error':
       return truncate(getLastAssistantMessage(input)) || 'API error occurred';
-    case 'permission': {
-      if (input.notification_message) {
-        return truncate(input.notification_message, 200);
-      }
-      return 'Claude needs permission to proceed';
-    }
-    case 'question': {
-      const toolInput = input.tool_input || {};
-      if (toolInput.questions && Array.isArray(toolInput.questions)) {
-        const q = toolInput.questions[0];
-        return truncate(q.question || '', 200);
-      }
-      return truncate(getLastAssistantMessage(input)) || 'Claude needs your input';
-    }
+    case 'permission':
+      return formatPermissionMessage(input);
+    case 'question':
+      return formatQuestionMessage(input);
     default:
       return truncate(getLastAssistantMessage(input)) || 'Claude has finished';
   }

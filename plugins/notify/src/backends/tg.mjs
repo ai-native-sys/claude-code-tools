@@ -9,11 +9,10 @@ export class TelegramBackend {
     }
 
     const url = `https://api.telegram.org/bot${config.botToken}/sendMessage`;
-    const lines = [
-      `*${notification.title}*`,
-      notification.subtitle,
-      notification.body,
-    ].filter(Boolean);
+    const title = notification.subtitle
+      ? `*${notification.title}* · ${notification.subtitle}`
+      : `*${notification.title}*`;
+    const lines = [title, notification.body].filter(Boolean);
 
     const payload = {
       chat_id: config.chatId,

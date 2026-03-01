@@ -20,6 +20,11 @@ const DEFAULTS = {
     botToken: '',
     chatId: '',
   },
+  feishu: {
+    appId: '',
+    appSecret: '',
+    chatId: '',
+  },
 };
 
 export function loadConfig() {
@@ -46,6 +51,10 @@ export function loadConfig() {
       ...DEFAULTS.tg,
       ...fileConfig.tg,
     },
+    feishu: {
+      ...DEFAULTS.feishu,
+      ...fileConfig.feishu,
+    },
   };
 
   // Env var overrides (highest priority)
@@ -69,6 +78,18 @@ export function loadConfig() {
   if (process.env.TG_CHAT_ID) {
     config.tg.chatId = process.env.TG_CHAT_ID;
     envOverrides.push('TG_CHAT_ID');
+  }
+  if (process.env.FEISHU_APP_ID) {
+    config.feishu.appId = process.env.FEISHU_APP_ID;
+    envOverrides.push('FEISHU_APP_ID');
+  }
+  if (process.env.FEISHU_APP_SECRET) {
+    config.feishu.appSecret = process.env.FEISHU_APP_SECRET;
+    envOverrides.push('FEISHU_APP_SECRET');
+  }
+  if (process.env.FEISHU_CHAT_ID) {
+    config.feishu.chatId = process.env.FEISHU_CHAT_ID;
+    envOverrides.push('FEISHU_CHAT_ID');
   }
   if (process.env.NOTIFY_LOG_LEVEL) {
     config.logLevel = process.env.NOTIFY_LOG_LEVEL;

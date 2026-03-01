@@ -17,9 +17,8 @@ Read `~/.claude/plugins/claude-code-tools/notify/config.json` to see if there's 
 Ask the user which notification backend(s) they want to use (they can select multiple):
 
 - **Bark** (iOS push notifications)
+- **Feishu** (飞书 group chat messages via Feishu app bot)
 - **Telegram** (Telegram bot messages)
-
-Frame the question for future extensibility (Discord, Lark, Email may be added later).
 
 ## Step 3: Collect backend configuration
 
@@ -29,6 +28,20 @@ Frame the question for future extensibility (Discord, Lark, Email may be added l
 2. Ask for their **device key** (found in the Bark app on the home screen). This is required.
 3. Ask if they want to customize:
    - **Server URL** (default: `https://api.day.app`) — for self-hosted Bark servers
+
+### For Feishu
+
+1. Tell the user to create a Feishu app at <https://open.feishu.cn/app>:
+   - Click **Create Custom App**, fill in the name and description.
+   - Go to **Credentials & Basic Info** and copy the **App ID** and **App Secret**.
+   - Go to **Permissions & Scopes**, search for `im:message:send_as_bot`, and add it.
+   - Go to **App Release** → **Version Management** and create + publish a release.
+2. Ask for their **App ID** (format: `cli_xxx`). This is required.
+3. Ask for their **App Secret**. This is required.
+4. Tell the user to add the bot to their target group chat:
+   - Open the group chat → Settings → Bots → Add Bot → select the app they just created.
+   - Get the **Chat ID**: open the group chat in Feishu, click the group name at the top, the Chat ID is shown at the bottom of the info panel. Alternatively, they can use the Feishu API debugger to call `im/v1/chats` to list their chats.
+5. Ask for their **Chat ID** (format: `oc_xxx`). This is required.
 
 ### For Telegram
 
@@ -61,6 +74,19 @@ Bark only:
 }
 ```
 
+Feishu only:
+
+```json
+{
+  "backend": "feishu",
+  "feishu": {
+    "appId": "<user-provided-app-id>",
+    "appSecret": "<user-provided-app-secret>",
+    "chatId": "<user-provided-chat-id>"
+  }
+}
+```
+
 Telegram only:
 
 ```json
@@ -73,16 +99,21 @@ Telegram only:
 }
 ```
 
-Both (multi-backend):
+Multi-backend (example with all three):
 
 ```json
 {
-  "backend": ["bark", "tg"],
+  "backend": ["bark", "feishu", "tg"],
   "bark": {
     "deviceKey": "<user-provided-key>",
     "serverUrl": "https://api.day.app",
     "sound": "minuet.caf",
     "icon": "https://www.google.com/s2/favicons?domain=claude.ai&sz=128"
+  },
+  "feishu": {
+    "appId": "<user-provided-app-id>",
+    "appSecret": "<user-provided-app-secret>",
+    "chatId": "<user-provided-chat-id>"
   },
   "tg": {
     "botToken": "<user-provided-bot-token>",
@@ -114,4 +145,5 @@ Ask the user if they received the notification on their device.
 - If successful: tell the user notifications are now active and will trigger on task completion, questions, permission requests, and plan reviews.
 - If failed: check the log file for errors. Common issues:
   - **Bark**: Invalid device key, Bark app not installed, self-hosted server unreachable (`curl <serverUrl>/ping` should return pong)
+  - **Feishu**: Invalid App ID/Secret (check credentials page), bot not added to the group chat, missing `im:message:send_as_bot` permission, app not published (create a release version)
   - **Telegram**: Invalid bot token, incorrect chat ID, bot hasn't been messaged yet (must send a message to the bot before it can reply)
