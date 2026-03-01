@@ -6,7 +6,7 @@
   "plugins": [
     {
       "name": "notify",
-      "version": "1.3.0",
+      "version": "1.3.1",
       "source": "./plugins/notify",
       "description": "Push notifications when Claude Code finishes tasks or needs input",
       "author": {

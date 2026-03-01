@@ -1,7 +1,7 @@
 ---
 description: Release plugins — code review, bump versions, verify consistency, and push to GitHub.
 user-invocable: true
-allowed-tools: Read, Edit, Bash, Glob, Grep, Agent, AskUserQuestion
+allowed-tools: Read, Edit, Bash, Glob, Grep, Agent
 ---
 
 # Release Plugins

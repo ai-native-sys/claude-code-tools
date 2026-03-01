@@ -1,7 +1,7 @@
 ---
 description: Set up claude-code-notify — select a notification backend and configure credentials.
 user-invocable: true
-allowed-tools: Read, Write, Bash, AskUserQuestion
+allowed-tools: Read, Write, Bash
 ---
 
 # Setup claude-code-notify
