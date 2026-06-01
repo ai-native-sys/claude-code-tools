@@ -1,0 +1,8 @@
+{
+  "name": "hud",
+  "version": "1.0.0",
+  "description": "Statusline HUD — model, context, cost, speed, billing type, quota, and git info",
+  "author": {
+    "name": "Siyuan Feng"
+  }
+}
